@@ -22,6 +22,9 @@ docker build --progress=plain -t openscad -t openscad:latest .
 
 ## Run the docker image
 
+Running the docker image will automatically build OpenSCAD. At present, it won't
+actually run the resultant built OpenSCAD, but I may add that in the future.
+
 I will provide 3 command lines you can use to run the docker image.
 One that builds OpenSCAD and destroys the container all in one fell swoop, and
 two others that just set up the container, and you the user need to attach to
@@ -35,6 +38,13 @@ host directory you bind-mount to /host.
 
 ```
 docker run -v <some host path>:/host --rm -d openscad:latest
+```
+
+If you would like to monitor the build progress, use the `docker logs` command.
+You will need to find out the container name using `docker ps`.
+
+```
+docker logs -f <container name>
 ```
 
 NOTE: If you try to attach to the docker container not set up to run
