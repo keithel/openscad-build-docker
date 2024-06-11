@@ -119,6 +119,8 @@ CTRL-P,CTRL-Q.
 
 ## Running openscad
 
+### From the host side
+
 Once you have openscad built, you may want to test it out. You can do that on
 the host side, by setting LD_LIBRARY_PATH to a directory with the Qt libs, as
 well as the openscad build directory. As part of setup.sh, once everything is
@@ -130,11 +132,16 @@ openscad, like so:
 LD_LIBRARY_PATH=$HOME/Qt/5.15.17/gcc_64/lib:$PWD/openscad-build openscad-build/openscad
 ```
 
-Alternatively, you can run it from within the container. To do so, you need to
-run one auth command on your host, and specify a number of additional options on
-the `docker run` command line:
+### From the container side via an interactive container
 
-Run this on your host:
+Alternatively, you can run it from within the container. To do so, you need to
+run one auth command on your host, specify a number of additional options on
+the `docker run` command line, and have the container be interactive (so you
+have a shell that can launch openscad):
+
+#### Launch container with specific args for running gui apps
+
+Run this command on your host first to authorize showing x apps from docker containers:
 ```
 xhost -local:docker
 ```
@@ -149,6 +156,11 @@ For PulseAudio to work:
 --env="XDG_RUNTIME_DIR" -v /dev/shm:/dev/shm -v /etc/machine-id:/etc/machine-id -v /run/user/$UID:/run/user/$UID -v /var/lib/dbus:/var/lib/dbus
 ```
 
+#### Example docker run command lines for launching openscad in container
+
+Here are some example interactive docker run command lines that you can copy-paste to
+be able to support running from within the container:
+
 Example with Debian's default Qt:
 ```
 docker run --env="XDG_RUNTIME_DIR" -v /dev/shm:/dev/shm -v /etc/machine-id:/etc/machine-id -v /run/user/$UID:/run/user/$UID -v /var/lib/dbus:/var/lib/dbus --env="DISPLAY" --env="QT_X11_NO_MITSHM=1" -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v $PWD:/host -it --rm -d openscad:latest -i
@@ -158,3 +170,27 @@ Example with qt.io Qt (Commercial 5.15.17 in this example, but works with others
 ```
 docker run --env="XDG_RUNTIME_DIR" -v /dev/shm:/dev/shm -v /etc/machine-id:/etc/machine-id -v /run/user/$UID:/run/user/$UID -v /var/lib/dbus:/var/lib/dbus --env="DISPLAY" --env="QT_X11_NO_MITSHM=1" -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v $HOME/.local/share/Qt:/home/dev/.local/share/Qt:ro -v $HOME/Qt:/home/dev/Qt:ro -v $PWD:/host -it --rm -d openscad:latest -i
 ```
+
+#### Build manually
+
+Since you've started the container interactively, the project doesn't
+automatically get built - you have to launch the script that the non-interactive
+mode automatically runs. That script is the `setup.sh` script in the home
+directory.
+
+```
+~/setup.sh
+```
+
+On modern hardware, this should only take about 5 minutes or less to build.
+You can adjust the number of cores it uses to build by modifying the setup.sh
+script, and changing the `NUMCPUS` env var that gets set in the script.
+
+#### Run the app
+
+Now navigate to the build directory. If you specified a /host binding, you
+will find the build directory at `/host/openscad-build`, otherwise you will find
+it at `/home/dev/openscad-build`.
+
+Next just launch the app. no arguments are necessary:
+`./openscad`.
