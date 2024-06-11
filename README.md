@@ -47,6 +47,23 @@ You will need to find out the container name using `docker ps`.
 docker logs -f <container name>
 ```
 
+Doing it this way, you'll need to run it from your host side, but the build is
+fully automated. Proceed to the first part of the `Running openscad` section.
+
+NOTE: Where things may go bad is that when running it, it needs to be able to
+load the Qt libraries and plugins. The version in the container is Qt 5.8, and
+your host likely will have newer Qt libraries. In theory, Qt should be binary
+compatible through the entire Qt 5.x series, but in practice, if the versions
+are too far apart, they sometimes are not. So, if you end up with issues where
+there is an inexplicable segfault when the app starts, even if it's after the
+first "Open" ui comes up, it's possible that it is a binary incompatibility with
+Qt. To solve this, have the build be done against a version of Qt that is common
+between host and container - below in the running interactively section I detail
+how you can pass in a version of Qt that you can get from qt.io. Add those
+options to your `docker run` command, and you'll get an OpenSCAD built against
+that Qt. Then, when you run, add the Qt libs dir to your `LD_LIBARY_PATH` when
+running, as detailed in the `Running openscad` section.
+
 NOTE: If you try to attach to the docker container not set up to run
 interactively, you will not be able to detach from it using the detach key
 sequence. If you do this, open another shell, use `ps` to find the `docker
@@ -132,7 +149,12 @@ For PulseAudio to work:
 --env="XDG_RUNTIME_DIR" -v /dev/shm:/dev/shm -v /etc/machine-id:/etc/machine-id -v /run/user/$UID:/run/user/$UID -v /var/lib/dbus:/var/lib/dbus
 ```
 
-Example:
+Example with Debian's default Qt:
+```
+docker run --env="XDG_RUNTIME_DIR" -v /dev/shm:/dev/shm -v /etc/machine-id:/etc/machine-id -v /run/user/$UID:/run/user/$UID -v /var/lib/dbus:/var/lib/dbus --env="DISPLAY" --env="QT_X11_NO_MITSHM=1" -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v $PWD:/host -it --rm -d openscad:latest -i
+```
+
+Example with qt.io Qt (Commercial 5.15.17 in this example, but works with others including OSS releases):
 ```
 docker run --env="XDG_RUNTIME_DIR" -v /dev/shm:/dev/shm -v /etc/machine-id:/etc/machine-id -v /run/user/$UID:/run/user/$UID -v /var/lib/dbus:/var/lib/dbus --env="DISPLAY" --env="QT_X11_NO_MITSHM=1" -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v $HOME/.local/share/Qt:/home/dev/.local/share/Qt:ro -v $HOME/Qt:/home/dev/Qt:ro -v $PWD:/host -it --rm -d openscad:latest -i
 ```
