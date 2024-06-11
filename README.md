@@ -114,7 +114,13 @@ LD_LIBRARY_PATH=$HOME/Qt/5.15.17/gcc_64/lib:$PWD/openscad-build openscad-build/o
 ```
 
 Alternatively, you can run it from within the container. To do so, you need to
-specify a number of additional options on the `docker run` command line:
+run one auth command on your host, and specify a number of additional options on
+the `docker run` command line:
+
+Run this on your host:
+```
+xhost -local:docker
+```
 
 For the app to display on the X server:
 ```
