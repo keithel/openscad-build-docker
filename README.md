@@ -5,6 +5,15 @@ A docker container for building OpenSCAD
 This is the config for building a docker container that will build the OpenSCAD
 source code, and allow you to run it from the host or the container.
 
+## Initialize submodule
+
+This repository has a submodule `src` that points to my fork of the OpenSCAD
+project. Be sure to initialize the submodule before building the docker image.
+
+```
+git submodule update --init --recursive
+```
+
 ## Build the docker image
 
 ```
