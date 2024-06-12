@@ -22,13 +22,16 @@ docker build --progress=plain -t openscad -t openscad:latest .
 
 ## Run the docker image
 
-Running the docker image will automatically build OpenSCAD. At present, it won't
-actually run the resultant built OpenSCAD, but I may add that in the future.
+Running the docker image will automatically build OpenSCAD and try to run it.
 
 I will provide 3 command lines you can use to run the docker image.
-One that builds OpenSCAD and destroys the container all in one fell swoop, and
-two others that just set up the container, and you the user need to attach to
-the container and initiate the build.
+One that builds OpenSCAD, starts openscad, and destroys the container all in
+one fell swoop, and two others that just set up the container, requiring you
+the user to attach to the container and initiate the build.
+
+**Is this overwhelming? Do you just want to try out the latest OpenSCAD code
+committed to master? If so, just run the first command I mention below. If it
+fails, instructions on what to try next will follow.**
 
 ### Building OpenSCAD from a single `docker run` command
 
@@ -37,18 +40,8 @@ placing the build output on the host in the `openscad-build` directory under the
 host directory you bind-mount to /host.
 
 ```
-docker run -v <some host path>:/host --rm -d openscad:latest
+docker run -v <some host path>:/host --rm openscad:latest
 ```
-
-If you would like to monitor the build progress, use the `docker logs` command.
-You will need to find out the container name using `docker ps`.
-
-```
-docker logs -f <container name>
-```
-
-Doing it this way, you'll need to run it from your host side, but the build is
-fully automated. Proceed to the first part of the `Running openscad` section.
 
 NOTE: Where things may go bad is that when running it, it needs to be able to
 load the Qt libraries and plugins. The version in the container is Qt 5.8, and
@@ -62,7 +55,9 @@ between host and container - below in the running interactively section I detail
 how you can pass in a version of Qt that you can get from qt.io. Add those
 options to your `docker run` command, and you'll get an OpenSCAD built against
 that Qt. Then, when you run, add the Qt libs dir to your `LD_LIBARY_PATH` when
-running, as detailed in the `Running openscad` section.
+running, as detailed in the `Running openscad` section. If this happens, the
+autoexec.sh script will detect an abnormal exit code from openscad, and print to
+stderr the additional steps you need to take to use a Qt build from qt.io.
 
 NOTE: If you try to attach to the docker container not set up to run
 interactively, you will not be able to detach from it using the detach key
