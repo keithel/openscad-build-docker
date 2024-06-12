@@ -43,21 +43,18 @@ host directory you bind-mount to /host.
 docker run -v <some host path>:/host --rm openscad:latest
 ```
 
-NOTE: Where things may go bad is that when running it, it needs to be able to
-load the Qt libraries and plugins. The version in the container is Qt 5.8, and
-your host likely will have newer Qt libraries. In theory, Qt should be binary
-compatible through the entire Qt 5.x series, but in practice, if the versions
-are too far apart, they sometimes are not. So, if you end up with issues where
-there is an inexplicable segfault when the app starts, even if it's after the
-first "Open" ui comes up, it's possible that it is a binary incompatibility with
-Qt. To solve this, have the build be done against a version of Qt that is common
-between host and container - below in the running interactively section I detail
-how you can pass in a version of Qt that you can get from qt.io. Add those
-options to your `docker run` command, and you'll get an OpenSCAD built against
-that Qt. Then, when you run, add the Qt libs dir to your `LD_LIBARY_PATH` when
-running, as detailed in the `Running openscad` section. If this happens, the
-autoexec.sh script will detect an abnormal exit code from openscad, and print to
-stderr the additional steps you need to take to use a Qt build from qt.io.
+NOTE: Where things may go bad is that when running it, something can go wrong
+with the Qt libraries. The Qt libraries installed into the container from debian
+bookworm's packages don't seem to work properly with the built openscad at
+runtime.
+If you end up with issues where there is an inexplicable segfault when the app
+starts, even if it's after the first "Open" ui comes up, it's likely it is the
+Qt issue I ran into. To solve this, try using a build of Qt from qt.io. Below in
+the running interactively section I detail how you can pass in a version of Qt
+that you can get from qt.io. Add those options to your `docker run` command, and
+you will get an OpenSCAD built against that Qt. If this happens, the autoexec.sh
+script will detect an abnormal exit code from openscad, and print to stderr the
+additional steps you need to take.
 
 NOTE: If you try to attach to the docker container not set up to run
 interactively, you will not be able to detach from it using the detach key
