@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Set the number of simultaneous compile jobs to perform when building.
+# This is set to the number of CPUs detected minus 2 (so the container doesn't
+# monopolize all of the processors and hyperthreads)
+export NPARALLEL=$(cat /proc/cpuinfo | awk ' BEGIN { nprocs=0 } /^processor/ { nprocs=$3+1 } END { print nprocs-2 }')
+
 # Copy over the debs that were installed, so that future docker build commands
 # won't re-fetch the debs.
 md5sum --status -c /var-cache-apt-archives.tar.md5
@@ -43,7 +48,9 @@ fi
 
 # Build qscintilla
 cd /sources
-export NUMCPU=16
+# uni-build-dependencies.sh allows you to specify the # parallel builds it does
+# by setting the env var `NUMCPU` - which we set at the top of this script.
+export NUMCPU=$NPARALLEL
 scripts/uni-build-dependencies.sh qt5scintilla2
 ret=$?
 if [ $ret -eq 0 ]; then
@@ -57,5 +64,10 @@ cd $BUILDDIR
 cmake /sources -DEXPERIMENTAL=1 -DOPENSCAD_DEPS=$HOME/openscad_deps
 make -j${NUMCPU}
 
+# Copy over the shaders to the build directory, as they are needed for running.
+cp -a /sources/shaders $BUILDDIR
+
+# Copy over a couple of libs from the container into the build directory so that
+# it can be run on the host (host still needs to provide Qt).
 cp -L /usr/lib/x86_64-linux-gnu/libopencsg.so.1 $BUILDDIR
 cp -L /usr/lib/x86_64-linux-gnu/libzip.so.4 $BUILDDIR

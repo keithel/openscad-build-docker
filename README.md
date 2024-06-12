@@ -79,7 +79,7 @@ end of the command line to tell the shell to ignore running the setup script
 and instead start an interactive shell within the container.
 
 If you want to have the build directory stored on the host, be sure to
-bind-mount a host path to /host in the container. setup.sh will recognize this
+bind-mount a host path to /host in the container. build.sh will recognize this
 and use that as the directory to put the `openscad-build` directory in.
 To do that, add `-v <some host path>:/host` (just like in the non-interactive
 example) to the below command line.
@@ -107,7 +107,7 @@ will then put you at a bash prompt from within the container. The build will
 not be configured or started for you; Telling docker to run interactively skips
 running the `CMD` command. In order to manually start the docker container the
 same way that the non-interactive container does, you will need to call
-`~/setup.sh`.
+`~/build.sh`.
 
 To discover the name of the container (that docker auto-generates), run `docker
 ps -a`, and look for a container that uses image `openscad:latest`. The name
@@ -123,7 +123,7 @@ CTRL-P,CTRL-Q.
 
 Once you have openscad built, you may want to test it out. You can do that on
 the host side, by setting LD_LIBRARY_PATH to a directory with the Qt libs, as
-well as the openscad build directory. As part of setup.sh, once everything is
+well as the openscad build directory. As part of build.sh, once everything is
 built, the needed libraries that are not available on the host side (assuming
 Ubuntu 23.10) are copied into the openscad-build directory, and launching
 openscad, like so:
@@ -175,15 +175,15 @@ docker run --env="XDG_RUNTIME_DIR" -v /dev/shm:/dev/shm -v /etc/machine-id:/etc/
 
 Since you've started the container interactively, the project doesn't
 automatically get built - you have to launch the script that the non-interactive
-mode automatically runs. That script is the `setup.sh` script in the home
+mode automatically runs. That script is the `build.sh` script in the home
 directory.
 
 ```
-~/setup.sh
+~/build.sh
 ```
 
 On modern hardware, this should only take about 5 minutes or less to build.
-You can adjust the number of cores it uses to build by modifying the setup.sh
+You can adjust the number of cores it uses to build by modifying the build.sh
 script, and changing the `NUMCPUS` env var that gets set in the script.
 
 #### Run the app
